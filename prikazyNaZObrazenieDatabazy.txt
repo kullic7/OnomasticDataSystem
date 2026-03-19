@@ -1,3 +1,0 @@
-docker exec -it onomastics-postgres psql -U rado -d OnomasticsDatabase
-\dt-zobrazi tabulky
-\d person - zobrazi tabulku person
