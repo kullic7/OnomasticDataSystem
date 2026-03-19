@@ -1,0 +1,19 @@
+﻿.info-page {
+	max-width: 900px;
+	margin-top: 40px;
+	margin-bottom: 60px;
+}
+
+	.info-page h1 {
+		font-weight: 600;
+	}
+
+	.info-page h2 {
+		margin-top: 30px;
+		font-size: 22px;
+	}
+
+	.info-page p {
+		font-size: 16px;
+		line-height: 1.6;
+	}

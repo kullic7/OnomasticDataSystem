@@ -1,0 +1,157 @@
+﻿@page "/mena"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components
+@using OnomasticsDataSystem.Core.Entity
+@inject IStatisticsService StatisticsService
+@inject NavigationManager Navigation
+
+<div class="mena">
+    <div class="graph" id="chart">
+        @if (nameCityStats.Items.Count > 0)
+        {
+            <TopList Title=@($"Počet výskytov mena {nameCityStats.DisplayName} v mestách")
+                     Items="nameCityStats.Items"
+                     BarColor="Color.Success" />
+        }
+    </div>
+
+    <AlphabetFilter SelectedLetter="startsWith"
+                    SelectedLetterChanged="OnLetterChanged" />
+    <FilterBar OnApply="ApplyFilters"
+                 OnClear="ClearFilters"
+               ShowExport="false">
+
+        <Filters>
+
+            <input class="form-control"
+                   placeholder="Hľadať meno"
+                   @bind="nameSearch" />
+
+            <input type="number"
+                   class="form-control"
+                   placeholder="Počet od"
+                   @bind="minCount" />
+            <input type="number"
+                   class="form-control"
+                   placeholder="Počet do"
+                   @bind="maxCount" />
+
+        </Filters>
+
+    </FilterBar>
+
+    <!-- Table -->
+    <ItemTable Items="names" 
+            Page="page"
+            PageSize="pageSize"
+            Title="Meno"
+            OnNameSelected="LoadCityStatsForName" />
+    <!-- Pager -->
+    <Pager Page="page"
+           TotalPages="totalPages"
+           TotalCount="totalCount"
+           DisablePrevious="@(page == 1)"
+           DisableNext="@(page == totalPages)"
+           OnNext="NextPage"
+           OnPrevious="PreviousPage" />
+
+
+</div>
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? name { get; set; }
+
+    List<ItemStats> names = new();
+    int page = 1;
+    int pageSize = 100;
+    int totalPages;
+    int totalCount;
+
+    string nameSearch = "";
+    int? minCount = null;
+    int? maxCount = null;
+    string? startsWith;
+    string topName = "";
+  
+    TopListStats nameCityStats = new();
+    protected override async Task OnParametersSetAsync()
+    {
+        _ = LoadData();
+        
+    }
+    private async Task LoadData()
+    {
+        await LoadPage();
+
+        var selectedName = name ?? names.FirstOrDefault()?.Name;
+
+        if (!string.IsNullOrWhiteSpace(selectedName))
+            await LoadCityStats(selectedName);
+
+        StateHasChanged();
+    }
+    async Task LoadPage()
+    {
+        var result = await StatisticsService.GetNameStats(
+        page,
+        pageSize,
+        nameSearch,
+        minCount,
+        maxCount,
+        startsWith);
+
+        names = result.Items;
+        totalCount = result.TotalCount;
+        totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+        if (page == 1 && names.Count > 0)
+            topName = names.First().Name;
+    }
+
+    async Task NextPage()
+    {
+        page++;
+        await LoadPage();
+    }
+
+    async Task PreviousPage()
+    {
+        page--;
+        await LoadPage();
+    }
+
+    async Task ApplyFilters()
+    {
+        page = 1;
+        await LoadPage();
+    }
+
+    async Task ClearFilters()
+    {
+        nameSearch = "";
+        minCount = null;
+        maxCount = null;
+        startsWith = null;
+        page = 1;
+
+        await LoadPage();
+    }
+    async Task OnLetterChanged(string? letter)
+    {
+        startsWith = letter;
+        page = 1;
+        await LoadPage();
+    }
+    
+    async Task LoadCityStatsForName(string normalizedName)
+    {
+        //Navigation.NavigateTo($"/mena?name={normalizedName}", replace: true);
+
+        await LoadCityStats(normalizedName);
+    }
+    async Task LoadCityStats(string normalizedName)
+    {
+        nameCityStats = await StatisticsService.GetNameCityStats(normalizedName);
+    }
+}

@@ -1,0 +1,78 @@
+﻿@using OnomasticsDataSystem.Core.Entity
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<div class="table-container">
+
+    <table class="person-table">
+
+        <thead class="table-header">
+            <tr>
+                <th class="select-col"></th>
+                <th class="col-id">Id</th>
+                <th>@Title</th>
+                <th>Počet</th>
+                <th>% dát</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @for (int i = 0; i < Items.Count; i++)
+            {
+                var it = Items[i];
+
+                <tr class="table-row">
+
+                    <td></td>
+
+                    <td>@((Page - 1) * PageSize + i + 1)</td>
+
+
+                    <td>
+                        <span class="name-link"
+                              @onclick="() => ItemClicked(it.Name)">
+                            @it.Name
+                            <span class="stat-icon">📊</span>
+                        </span>
+                    </td>
+                    <td>@it.Count</td>
+
+                    <td>@GetPercentage(it.Count)</td>
+
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Názov";
+    [Parameter] public EventCallback<string> OnNameSelected { get; set; }
+
+    [Parameter] public List<ItemStats> Items { get; set; } = new();
+
+    [Parameter] public int Page { get; set; }
+
+    [Parameter] public int PageSize { get; set; }
+
+    int totalCount => Items.Sum(x => x.Count);
+
+    string GetPercentage(int count)
+    {
+        if (totalCount == 0)
+            return "0%";
+
+        double percent = (double)count / totalCount * 100;
+        return percent.ToString("0.00") + "%";
+    }
+    async Task ItemClicked(string name)
+    {
+        await OnNameSelected.InvokeAsync(name);
+
+        await JS.InvokeVoidAsync("scrollToChart");
+    }
+}

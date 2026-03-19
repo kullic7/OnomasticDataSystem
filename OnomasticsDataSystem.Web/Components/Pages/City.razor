@@ -1,0 +1,152 @@
+﻿@page "/miesta"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components
+@using OnomasticsDataSystem.Core.Entity
+@inject IStatisticsService StatisticsService
+@inject NavigationManager Navigation
+
+<div class="cities">
+
+    <div class="graph" id="chart">
+        @if (cityNameStats.Items.Count > 0)
+        {
+            <TopList Title=@($"Najčastejšie mená v meste {cityNameStats.DisplayName}")
+                     Items="cityNameStats.Items"
+                     BarColor="Color.Success" />
+        }
+    </div>
+
+    <FilterBar OnApply="ApplyFilters"
+               OnClear="ClearFilters"
+               ShowExport="false">
+
+        <Filters>
+
+            <input class="form-control"
+                   placeholder="Hľadať mesto"
+                   @bind="citySearch" />
+
+            <input type="number"
+                   class="form-control"
+                   placeholder="Počet od"
+                   @bind="minCount" />
+
+            <input type="number"
+                   class="form-control"
+                   placeholder="Počet do"
+                   @bind="maxCount" />
+
+        </Filters>
+
+    </FilterBar>
+
+    <!-- Table -->
+    <ItemTable Items="cities"
+               Page="page"
+               PageSize="pageSize"
+               Title="Mesto"
+               OnNameSelected="LoadNameStatsForCity" />
+
+    <!-- Pager -->
+    <Pager Page="page"
+           TotalPages="totalPages"
+           TotalCount="totalCount"
+           DisablePrevious="@(page == 1)"
+           DisableNext="@(page == totalPages)"
+           OnNext="NextPage"
+           OnPrevious="PreviousPage" />
+
+</div>
+
+@code {
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? city { get; set; }
+
+    List<ItemStats> cities = new();
+
+    int page = 1;
+    int pageSize = 100;
+    int totalPages;
+    int totalCount;
+
+    string citySearch = "";
+    int? minCount = null;
+    int? maxCount = null;
+
+    string topCity = "";
+
+    TopListStats cityNameStats = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _ = LoadData();
+    }
+    private async Task LoadData()
+    {
+        await LoadPage();
+
+        var selectedCity = city ?? cities.FirstOrDefault()?.Name;
+
+        if (!string.IsNullOrWhiteSpace(selectedCity))
+            await LoadNameStats(selectedCity);
+
+        StateHasChanged();
+    }
+    async Task LoadPage()
+    {
+        var result = await StatisticsService.GetCityStats(
+            page,
+            pageSize,
+            citySearch,
+            minCount,
+            maxCount);
+
+        cities = result.Items;
+        totalCount = result.TotalCount;
+        totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+        if (page == 1 && cities.Count > 0)
+            topCity = cities.First().Name;
+    }
+
+    async Task NextPage()
+    {
+        page++;
+        await LoadPage();
+    }
+
+    async Task PreviousPage()
+    {
+        page--;
+        await LoadPage();
+    }
+
+    async Task ApplyFilters()
+    {
+        page = 1;
+        await LoadPage();
+    }
+
+    async Task ClearFilters()
+    {
+        citySearch = "";
+        minCount = null;
+        maxCount = null;
+        page = 1;
+
+        await LoadPage();
+    }
+
+    async Task LoadNameStatsForCity(string cityName)
+    {
+        await LoadNameStats(cityName);
+    }
+
+    async Task LoadNameStats(string cityName)
+    {
+        cityNameStats = await StatisticsService.GetCityNameStats(cityName);
+    }
+
+}

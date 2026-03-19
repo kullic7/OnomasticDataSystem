@@ -1,0 +1,156 @@
+﻿@page "/priezviska"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components
+@using OnomasticsDataSystem.Core.Entity
+@inject IStatisticsService StatisticsService
+@inject NavigationManager Navigation
+
+<div class="priezviska">
+    <div class="graph" id="chart">
+        @if (surnameCityStats.Items.Count > 0)
+        {
+            <TopList Title=@($"Počet výskytov priezviska {surnameCityStats.DisplayName} v mestách")
+                     Items="surnameCityStats.Items"
+                     BarColor="Color.Success" />
+        }
+    </div>
+
+    <AlphabetFilter SelectedLetter="startsWith"
+                    SelectedLetterChanged="OnLetterChanged" />
+    <FilterBar OnApply="ApplyFilters"
+               OnClear="ClearFilters"
+               ShowExport="false">
+
+        <Filters>
+
+            <input class="form-control"
+                   placeholder="Hľadať priezvisko"
+                   @bind="surnameSearch" />
+
+            <input type="number"
+                   class="form-control"
+                   placeholder="Počet od"
+                   @bind="minCount" />
+            <input type="number"
+                   class="form-control"
+                   placeholder="Počet do"
+                   @bind="maxCount" />
+
+        </Filters>
+
+    </FilterBar>
+
+    <!-- Table -->
+    <ItemTable Items="surnames"
+               Page="page"
+               PageSize="pageSize"
+               Title="Priezvisko"
+               OnNameSelected="LoadCityStatsForName" />
+    <!-- Pager -->
+    <Pager Page="page"
+           TotalPages="totalPages"
+           TotalCount="totalCount"
+           DisablePrevious="@(page == 1)"
+           DisableNext="@(page == totalPages)"
+           OnNext="NextPage"
+           OnPrevious="PreviousPage" />
+
+
+</div>
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? surname { get; set; }
+
+    List<ItemStats> surnames = new();
+    int page = 1;
+    int pageSize = 100;
+    int totalPages;
+    int totalCount;
+
+    string surnameSearch = "";
+    int? minCount = null;
+    int? maxCount = null;
+    string? startsWith;
+    string topSurname = "";
+    
+    TopListStats surnameCityStats = new();
+    protected override async Task OnParametersSetAsync()
+    {
+        _ = LoadData();
+    }
+    private async Task LoadData()
+    {
+        await LoadPage();
+
+        var selectedSurname = surname ?? surnames.FirstOrDefault()?.Name;
+
+        if (!string.IsNullOrWhiteSpace(selectedSurname))
+            await LoadCityStats(selectedSurname);
+
+        StateHasChanged();
+    }
+    async Task LoadPage()
+    {
+        var result = await StatisticsService.GetSurnameStats(
+        page,
+        pageSize,
+        surnameSearch,
+        minCount,
+        maxCount,
+        startsWith);
+
+        surnames = result.Items;
+        totalCount = result.TotalCount;
+        totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+        if (page == 1 && surnames.Count > 0)
+            topSurname = surnames.First().Name;
+    }
+
+    async Task NextPage()
+    {
+        page++;
+        await LoadPage();
+    }
+
+    async Task PreviousPage()
+    {
+        page--;
+        await LoadPage();
+    }
+
+    async Task ApplyFilters()
+    {
+        page = 1;
+        await LoadPage();
+    }
+
+    async Task ClearFilters()
+    {
+        surnameSearch = "";
+        minCount = null;
+        maxCount = null;
+        startsWith = null;
+        page = 1;
+
+        await LoadPage();
+    }
+    async Task OnLetterChanged(string? letter)
+    {
+        startsWith = letter;
+        page = 1;
+        await LoadPage();
+    }
+
+    async Task LoadCityStatsForName(string normalizedName)
+    {
+        //Navigation.NavigateTo($"/priezviska?surname={normalizedName}", replace: true);
+
+        await LoadCityStats(normalizedName);
+    }
+    async Task LoadCityStats(string normalizedName)
+    {
+        surnameCityStats = await StatisticsService.GetSurnameCityStats(normalizedName);
+    }
+}

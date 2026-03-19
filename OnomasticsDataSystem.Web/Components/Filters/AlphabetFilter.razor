@@ -1,0 +1,40 @@
+﻿<div class="alphabet-filter">
+
+    @foreach (var letter in Letters)
+    {
+        <button class="alphabet-btn @(SelectedLetter == letter ? "active" : "")"
+                @onclick="() => SelectLetter(letter)">
+            @letter
+        </button>
+    }
+
+    <button class="alphabet-btn all-btn"
+            @onclick="ClearFilter">
+        All
+    </button>
+
+</div>
+
+@code {
+
+    static readonly string[] Letters =
+    {
+        "A","B","C","D","E","F","G","H","I","J","K","L","M",
+        "N","O","P","Q","R","S","T","U","V","W","X","Y","Z"
+    };
+
+    [Parameter] public string? SelectedLetter { get; set; }
+
+    [Parameter] public EventCallback<string?> SelectedLetterChanged { get; set; }
+
+    async Task SelectLetter(string letter)
+    {
+        await SelectedLetterChanged.InvokeAsync(letter);
+    }
+
+    async Task ClearFilter()
+    {
+        await SelectedLetterChanged.InvokeAsync(null);
+    }
+
+}

@@ -1,0 +1,38 @@
+﻿.filter-panel {
+	background: white;
+	padding: 16px;
+	border-radius: 8px;
+	box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+	margin-bottom: 16px;
+}
+
+.filter-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 20px;
+	
+}
+
+.filter-title {
+	font-weight: 600;
+	font-size: 16px;
+}
+
+.filter-actions {
+	display: flex;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.filter-row {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: 12px;
+	
+}
+
+
+
+
+

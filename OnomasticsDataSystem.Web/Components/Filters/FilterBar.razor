@@ -1,0 +1,100 @@
+﻿
+<div class="filter-panel">
+
+    <div class="filter-header">
+        <span class="filter-title">Filter</span>
+
+        <div class="filter-actions">
+
+            <button class="btn btn-primary"
+                    @onclick="ApplyClicked">
+                Použiť filtre
+            </button>
+
+            <button class="btn btn-light"
+                    @onclick="ClearClicked">
+                Reset
+            </button>
+
+            @if (ShowExport)
+            {
+                <div class="dropdown">
+                    <button class="btn btn-light dropdown-toggle"
+                            data-bs-toggle="dropdown">
+                        Export
+                    </button>
+
+                    <ul class="dropdown-menu">
+
+                        <li>
+                            <button class="dropdown-item"
+                                    @onclick="ExportFiltered">
+                                Export filtrovaných
+                            </button>
+                        </li>
+
+                        <li>
+                            <button class="dropdown-item"
+                                    disabled="@(!HasSelected)"
+                                    @onclick="ExportSelected">
+                                Export označených
+                            </button>
+                        </li>
+
+                    </ul>
+                </div>
+            }
+
+        </div>
+    </div>
+
+
+    <div class="filter-row">
+        @Filters
+    </div>
+
+</div>
+@code {
+    [Parameter] public bool ShowExport { get; set; } = true;
+    [Parameter] public RenderFragment? Filters { get; set; }
+    [Parameter] public string City { get; set; } = "";
+    [Parameter] public EventCallback<string> CityChanged { get; set; }
+
+    [Parameter] public string Name { get; set; } = "";
+    [Parameter] public EventCallback<string> NameChanged { get; set; }
+
+    [Parameter] public string LastName { get; set; } = "";
+    [Parameter] public EventCallback<string> LastNameChanged { get; set; }
+
+    [Parameter] public int? YearFrom { get; set; }
+    [Parameter] public EventCallback<int?> YearFromChanged { get; set; }
+
+    [Parameter] public int? YearTo { get; set; }
+    [Parameter] public EventCallback<int?> YearToChanged { get; set; }
+
+    [Parameter] public EventCallback OnApply { get; set; }
+    [Parameter] public EventCallback OnClear { get; set; }
+
+    [Parameter] public EventCallback OnExportFiltered { get; set; }
+    [Parameter] public EventCallback OnExportSelected { get; set; }
+    [Parameter] public bool HasSelected { get; set; }
+
+    async Task ApplyClicked()
+    {
+        await OnApply.InvokeAsync();
+    }
+
+    async Task ClearClicked()
+    {
+        await OnClear.InvokeAsync();
+    }
+    async Task ExportFiltered()
+    {
+        await OnExportFiltered.InvokeAsync();
+    }
+
+    async Task ExportSelected()
+    {
+        await OnExportSelected.InvokeAsync();
+    }
+}

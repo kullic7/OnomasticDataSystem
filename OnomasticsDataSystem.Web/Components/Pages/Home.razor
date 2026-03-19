@@ -1,0 +1,242 @@
+﻿@page "/"
+@using System.Text;
+
+@inject IStatisticsService StatisticsService
+@rendermode InteractiveServer
+@inject IJSRuntime JS
+
+<div class="dashboard">
+
+    <!-- STAT CARDS -->
+    <MudGrid Class="stat-grid">
+
+        <MudItem xs="12" sm="6" md="3">
+            <StatCard Title="Celkový počet osôb"
+                      Value="@stats.TotalPersons"
+                      Icon="@Icons.Material.Filled.Groups"
+                      BackgroundColor="linear-gradient(135deg,#6366f1,#4f46e5)" />
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="3">
+            <StatCard Title="Unikátne mená"
+                      Value="@stats.UniqueNames"
+                      Icon="@Icons.Material.Filled.Person"
+                      BackgroundColor="linear-gradient(135deg,#22c55e,#16a34a)" />
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="3">
+            <StatCard Title="Unikátne priezviská"
+                      Value="@stats.UniqueSurnames"
+                      Icon="@Icons.Material.Filled.Badge"
+                      BackgroundColor="linear-gradient(135deg,#3b82f6,#2563eb)" />
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="3">
+            <StatCard Title="Miest narodenia"
+                      Value="@stats.UniqueCities"
+                      Icon="@Icons.Material.Filled.LocationOn"
+                      BackgroundColor="linear-gradient(135deg,#f59e0b,#d97706)" />
+        </MudItem>
+
+    </MudGrid>
+
+    <MudGrid Class="mb-2">
+
+        <MudItem xs="12" md="4">
+            <TopList Title="Top mená"
+                     Items="stats.TopNames"
+                     BarColor="Color.Success" />
+        </MudItem>
+
+        <MudItem xs="12" md="4">
+            <TopList Title="Top priezviská"
+                     Items="stats.TopSurnames"
+                     BarColor="Color.Warning" />
+        </MudItem>
+
+        <MudItem xs="12" md="4">
+            <TopList Title="Top miesta"
+                     Items="stats.TopCities"
+                     BarColor="Color.Tertiary" />
+        </MudItem>
+
+    </MudGrid>
+
+
+
+    <MudStack Spacing="0">
+
+        <div id="filter-section">
+
+            <FilterBar OnApply="ApplyFilters"
+                       OnClear="ClearFilters"
+                       OnExportFiltered="ExportFiltered"
+                       OnExportSelected="ExportSelected"
+                       HasSelected="@(selectedPersons.Count > 0)"
+                       ShowExport="true">
+
+                <Filters>
+                    <input class="form-control"
+                           placeholder="Meno"
+                           @bind="nameFilter" />
+
+                    <input class="form-control"
+                           placeholder="Priezvisko"
+                           @bind="lastNameFilter" />
+
+                    <input class="form-control"
+                           placeholder="Mesto"
+                           @bind="cityFilter" />
+
+                    <input type="number"
+                           class="form-control"
+                           placeholder="Rok od"
+                           @bind="yearFrom" />
+
+                    <input type="number"
+                           class="form-control"
+                           placeholder="Rok do"
+                           @bind="yearTo" />
+                </Filters>
+
+            </FilterBar>
+
+        </div>
+
+        <PersonTable Persons="persons"
+                     SelectedPersons="selectedPersons"
+                     OnSelectionChanged="SelectionChanged" />
+
+        <Pager Page="page"
+               TotalPages="totalPages"
+               TotalCount="totalCount"
+               DisablePrevious="@(page == 1 || isLoading)"
+               DisableNext="@(page >= totalPages || isLoading)"
+               OnNext="NextPage"
+               OnPrevious="PreviousPage" />
+
+    </MudStack>
+
+</div>
+@code {
+
+    DashboardStatsForHome stats = new();
+    List<Person> selectedPersons = new();
+    protected override async Task OnInitializedAsync()
+    {
+        _ = LoadData(); // fire & forget
+    }
+    private async Task LoadData()
+    {
+        isLoading = true;
+        StateHasChanged();
+
+        stats = await StatisticsService.GetDashboardStatsForHome();
+        await LoadPage();
+
+        isLoading = false;
+        StateHasChanged();
+    }
+    List<Person> persons = new();
+
+    int page = 1;
+    int pageSize = 100;
+    int totalCount = 0;
+    int totalPages = 0;
+    bool isLoading = false;
+
+    string cityFilter = "";
+    string nameFilter = "";
+    string lastNameFilter = "";
+    int? yearFrom = null;
+    int? yearTo = null;
+
+
+    async Task LoadPage()
+    {
+        isLoading = true;
+
+        var result = await StatisticsService.GetPersonsPage(
+            page,
+            pageSize,
+            cityFilter,
+            nameFilter,
+            lastNameFilter,
+            yearFrom,
+            yearTo);
+
+        persons = result.Items;
+        totalCount = result.TotalCount;
+
+        totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        isLoading = false;
+    }
+
+    async Task NextPage()
+    {
+        if (page < totalPages)
+        {
+            page++;
+            await LoadPage();
+        }
+    }
+
+    async Task PreviousPage()
+    {
+        if (page > 1)
+        {
+            page--;
+            await LoadPage();
+        }
+    }
+
+    async Task ApplyFilters()
+    {
+        page = 1;
+        await LoadPage();
+    }
+
+    async Task ClearFilters()
+    {
+        cityFilter = "";
+        nameFilter = "";
+        lastNameFilter = "";
+        yearFrom = null;
+        yearTo = null;
+
+        page = 1;
+        await LoadPage();
+    }
+
+    
+    async Task ExportSelected()
+    {
+        var csv = CsvHelper.GeneratePersonsCsv(selectedPersons);
+
+        var bytes = Encoding.UTF8.GetPreamble()
+            .Concat(Encoding.UTF8.GetBytes(csv))
+            .ToArray();
+
+        var base64 = Convert.ToBase64String(bytes);
+
+        await JS.InvokeVoidAsync("downloadFile", "selected_people.csv", base64);
+    }
+
+    async Task ExportFiltered()
+    {
+        var csv = CsvHelper.GeneratePersonsCsv(persons);
+
+        var bytes = Encoding.UTF8.GetPreamble()
+            .Concat(Encoding.UTF8.GetBytes(csv))
+            .ToArray();
+
+        var base64 = Convert.ToBase64String(bytes);
+
+        await JS.InvokeVoidAsync("downloadFile", "filtered_people.csv", base64);
+    }
+    void SelectionChanged()
+    {
+        StateHasChanged();
+    }
+}

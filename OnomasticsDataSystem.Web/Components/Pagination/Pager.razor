@@ -1,0 +1,43 @@
+﻿<div class="pager">
+
+    <button class="pager-link"
+            @onclick="PreviousClicked"
+            disabled="@DisablePrevious">
+        ‹ Predošla strana
+    </button>
+
+    <div class="pager-current">
+        @Page / @TotalPages
+    </div>
+
+    <button class="pager-link"
+            @onclick="NextClicked"
+            disabled="@DisableNext">
+        Ďalšia strana ›
+    </button>
+
+</div>
+
+@code {
+
+    [Parameter] public int Page { get; set; }
+    [Parameter] public int TotalPages { get; set; }
+    [Parameter] public int TotalCount { get; set; }
+
+    [Parameter] public bool DisablePrevious { get; set; }
+    [Parameter] public bool DisableNext { get; set; }
+
+    [Parameter] public EventCallback OnNext { get; set; }
+    [Parameter] public EventCallback OnPrevious { get; set; }
+
+    async Task NextClicked()
+    {
+        await OnNext.InvokeAsync();
+    }
+
+    async Task PreviousClicked()
+    {
+        await OnPrevious.InvokeAsync();
+    }
+
+}

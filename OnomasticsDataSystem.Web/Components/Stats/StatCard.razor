@@ -1,0 +1,32 @@
+﻿<MudPaper Class="stat-card d-flex align-center"
+          Style="@($"background:{BackgroundColor}; min-height:140px;")">
+
+    <div class="stat-card-content">
+
+        <div class="stat-icon-wrapper">
+            <MudIcon Icon="@Icon" Class="stat-icon" />
+        </div>
+
+        <div class="stat-text">
+
+            <div class="stat-title">
+                @Title
+            </div>
+
+            <div class="stat-value">
+                @Value.ToString("N0")
+            </div>
+
+        </div>
+
+    </div>
+
+</MudPaper>
+
+@code {
+    [Parameter] public Color IconColor { get; set; } = Color.Default;
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public int Value { get; set; }
+    [Parameter] public string Icon { get; set; } = "";
+    [Parameter] public string BackgroundColor { get; set; } = "#6366f1";
+}
