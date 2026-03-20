@@ -40,13 +40,13 @@
 
     </FilterBar>
 
-    <!-- Table -->
-    <ItemTable Items="names" 
-            Page="page"
-            PageSize="pageSize"
-            Title="Meno"
-            OnNameSelected="LoadCityStatsForName" />
-    <!-- Pager -->
+    <ItemTable  Mode="stats"
+                Items="names" 
+                Page="page"
+                PageSize="pageSize"
+                ShowPercentage="true"
+                OnNameSelected="LoadCityStatsForName" />
+
     <Pager Page="page"
            TotalPages="totalPages"
            TotalCount="totalCount"

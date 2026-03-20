@@ -40,13 +40,12 @@
 
     </FilterBar>
 
-    <!-- Table -->
-    <ItemTable Items="surnames"
-               Page="page"
-               PageSize="pageSize"
-               Title="Priezvisko"
-               OnNameSelected="LoadCityStatsForName" />
-    <!-- Pager -->
+    <ItemTable  Mode="stats"
+                Items="surnames"
+                Page="page"
+                PageSize="pageSize"
+                OnNameSelected="LoadCityStatsForName" />
+
     <Pager Page="page"
            TotalPages="totalPages"
            TotalCount="totalCount"

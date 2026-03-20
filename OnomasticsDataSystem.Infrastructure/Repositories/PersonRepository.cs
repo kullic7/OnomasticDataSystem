@@ -75,12 +75,6 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 			}
 		}
 
-		//public async Task SaveChangesAsync()
-		//{
-		//	using var _db = _factory.CreateDbContext();
-		//	await _db.SaveChangesAsync();
-		//}
-
 		public async Task<bool> ExistsAsync(string? firstName, string? lastName, int? birthYear, string? birthCity)
 		{
 			using var _db = _factory.CreateDbContext();
@@ -136,7 +130,7 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 			var baseQuery = db.People
 				.AsNoTracking();
 
-			// filtrovanie na normalized
+			
 			if (!string.IsNullOrWhiteSpace(nameSearch))
 			{
 				var search = Helper.Normalize(nameSearch);
@@ -189,7 +183,7 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 			var baseQuery = db.People
 				.AsNoTracking();
 
-			// filtrovanie na normalized
+			
 			if (!string.IsNullOrWhiteSpace(nameSearch))
 			{
 				var search = Helper.Normalize(nameSearch);
@@ -531,16 +525,23 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 
 			var normalized = Helper.Normalize(city);
 
-			var data = await db.People
+			var query = db.People
 				.AsNoTracking()
-				.Where(p => p.BirthCityNormalized == normalized)
+				.Where(p => p.BirthCityNormalized == normalized);
+
+			
+			var displayName = await query
+				.Select(p => p.BirthCity)
+				.FirstOrDefaultAsync();
+
+			var data = await query
 				.GroupBy(p => p.FirstNameNormalized)
 				.Select(g => new
 				{
 					Name = g.GroupBy(x => x.FirstName)
 							.OrderByDescending(x => x.Count())
 							.Select(x => x.Key)
-							.First(), // ✅ najčastejší tvar mena
+							.First(),
 					Count = g.Count()
 				})
 				.OrderByDescending(x => x.Count)
@@ -548,7 +549,10 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 				.ToListAsync();
 
 			if (data.Count == 0)
-				return new TopListStats();
+				return new TopListStats
+				{
+					DisplayName = displayName ?? city
+				};
 
 			var max = data.Max(x => x.Count);
 
@@ -562,8 +566,92 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 
 			return new TopListStats
 			{
-				DisplayName = city,
+				DisplayName = displayName ?? city, 
 				Items = items
+			};
+		}
+
+		public async Task<PagedResult<ItemStats>> GetNameAnalysisAsync(
+			string? type,
+			int? syllables,
+			int? lengthFrom,
+			int? lengthTo,
+			string? startsWith,
+			int page,
+			int pageSize)
+		{
+			using var db = _factory.CreateDbContext();
+
+			bool isName = string.IsNullOrEmpty(type) || type == "name";
+
+			var baseQuery = db.People.AsNoTracking();
+
+			if (!string.IsNullOrWhiteSpace(startsWith))
+			{
+				var norm = Helper.Normalize(startsWith);
+
+				baseQuery = isName
+					? baseQuery.Where(p => p.FirstNameNormalized!.StartsWith(norm))
+					: baseQuery.Where(p => p.LastNameNormalized!.StartsWith(norm));
+			}
+
+			
+			if (lengthFrom.HasValue)
+			{
+				baseQuery = isName
+					? baseQuery.Where(p => p.FirstName!.Length >= lengthFrom.Value)
+					: baseQuery.Where(p => p.LastName!.Length >= lengthFrom.Value);
+			}
+
+			if (lengthTo.HasValue)
+			{
+				baseQuery = isName
+					? baseQuery.Where(p => p.FirstName!.Length <= lengthTo.Value)
+					: baseQuery.Where(p => p.LastName!.Length <= lengthTo.Value);
+			}
+
+			
+			var query = baseQuery
+				.GroupBy(p => isName ? p.FirstNameNormalized : p.LastNameNormalized)
+				.Select(g => new ItemStats
+				{
+					Name = isName
+						? g.GroupBy(x => x.FirstName)
+							.OrderByDescending(x => x.Count())
+							.Select(x => x.Key)
+							.First()
+						: g.GroupBy(x => x.LastName)
+							.OrderByDescending(x => x.Count())
+							.Select(x => x.Key)
+							.First(),
+
+					Count = g.Count()
+				});
+
+			
+			var temp = await query.ToListAsync();
+
+			if (syllables.HasValue)
+			{
+				temp = temp.Where(x =>
+					syllables == 3
+						? x.Syllables >= 3
+						: x.Syllables == syllables
+				).ToList();
+			}
+
+			var totalCount = temp.Count;
+
+			var items = temp
+				.OrderByDescending(x => x.Count)
+				.Skip((page - 1) * pageSize)
+				.Take(pageSize)
+				.ToList();
+
+			return new PagedResult<ItemStats>
+			{
+				Items = items,
+				TotalCount = totalCount
 			};
 		}
 	}

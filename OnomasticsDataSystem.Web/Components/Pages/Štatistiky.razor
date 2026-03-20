@@ -1,0 +1,151 @@
+﻿@page "/statistiky"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components
+@using OnomasticsDataSystem.Core.Models
+@inject IStatisticsService StatisticsService
+@inject NavigationManager Navigation
+
+<h3>📊 Štatistiky / Analýza</h3>
+
+<FilterBar OnApply="ApplyFilters" OnClear="ClearFilters">
+
+    <Filters>
+        <select class="form-control" @bind="type">
+            <option value="name">Meno</option>
+            <option value="surname">Priezvisko</option>
+        </select>
+
+        <input type="number" class="form-control"
+               placeholder="Slabiky (1,2,3+)"
+               @bind="syllables" />
+
+        <input type="number" class="form-control"
+               placeholder="Dĺžka od"
+               @bind="lengthFrom" />
+
+        <input type="number" class="form-control"
+               placeholder="Dĺžka do"
+               @bind="lengthTo" />
+
+        <input class="form-control"
+               placeholder="Začína na"
+               @bind="startsWith" />
+    </Filters>
+
+</FilterBar>
+
+@if (results == null)
+{
+    
+}
+else if (isLoading)
+{
+    
+}
+else if (results.Items == null || results.Items.Count == 0)
+{
+    <p>Žiadne výsledky</p>
+}
+else
+{
+ 
+    <ItemTable Mode="stats"
+               Type=@type
+               Items="results.Items"
+               Page="page"
+               PageSize="pageSize"
+               ShowPercentage="false"
+               ShowLength="true"
+               ShowSyllables="true" />
+
+   
+    <Pager Page="page"
+           TotalPages="totalPages"
+           TotalCount="totalCount"
+           DisablePrevious="@(page == 1)"
+           DisableNext="@(page == totalPages)"
+           OnNext="NextPage"
+           OnPrevious="PreviousPage" />
+}
+
+@code {
+
+    //filtre
+    string? type = "name";
+    int? syllables;
+    int? lengthFrom;
+    int? lengthTo;
+    string? startsWith;
+
+    //paging
+    int page = 1;
+    int pageSize = 100;
+    int totalPages;
+    int totalCount;
+
+    PagedResult<ItemStats>? results;
+    //TopListStats nameCityStats = new();
+
+    bool isLoading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _ = LoadData();
+    }
+    private async Task LoadData()
+    {
+        isLoading = true;
+
+        await LoadPage();
+
+        isLoading = false;
+        StateHasChanged();
+    }
+    async Task LoadPage()
+    {
+
+        results = await StatisticsService.GetNameAnalysis(
+            type,
+            syllables,
+            lengthFrom,
+            lengthTo,
+            startsWith,
+            page,
+            pageSize);
+
+        totalCount = results.TotalCount;
+        totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+        
+    }
+    async Task NextPage()
+    {
+        page++;
+        await LoadData();
+    }
+
+    async Task PreviousPage()
+    {
+        page--;
+        await LoadData();
+    }
+
+    async Task ApplyFilters()
+    {
+        page = 1; // reset stránkovania
+        await LoadData();
+    }
+
+    async Task ClearFilters()
+    {
+        type = "name";
+        syllables = null;
+        lengthFrom = null;
+        lengthTo = null;
+        startsWith = null;
+
+        page = 1;
+
+        await LoadData();
+    }
+    
+}

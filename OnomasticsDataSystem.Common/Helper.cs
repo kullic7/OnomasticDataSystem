@@ -83,7 +83,12 @@ namespace OnomasticsDataSystem.Common
 			"Deti",
 			"Umrel",
 			"Umrela",
-			"Umreli"
+			"Umreli",
+			"Mrtvonarodené",
+			"Mŕtvonarodený",
+			"Poľnohospodárske",
+			"Reality"
+
 		};
 		
 		public static string? Normalize(string? value)
@@ -138,15 +143,10 @@ namespace OnomasticsDataSystem.Common
 				c == '+' ||
 				c == '?' ||
 				c == ',' ||
+				c == '(' ||
+				c == ')' ||
 				c == '&');
 		}
-		//public static bool IsUnwantedValue(string? value)
-		//{
-		//	if (string.IsNullOrWhiteSpace(value))
-		//		return true; // prázdne riadky môžeš tiež preskočiť
-
-		//	return UnwantedValues.Contains(value.Trim());
-		//}
 		public static int? ParseValidBirthYear(string value)
 		{
 			if (!int.TryParse(value?.Trim(), out int year))
@@ -159,26 +159,6 @@ namespace OnomasticsDataSystem.Common
 
 			return year;
 		}
-		//public static bool ContainsOthers(string? value)
-		//{
-		//	if (string.IsNullOrWhiteSpace(value))
-		//		return false;
-
-		//	return value.Any(c =>
-		//		char.IsDigit(c) ||
-		//		c == '-' ||
-		//		c == '–' ||
-		//		c == '—' ||
-		//		c == '−' ||
-		//		c == '#' ||
-		//		c == '.' ||
-		//		c == '/' ||
-		//		c == '.' ||
-		//		c == '+' ||
-		//		c == '?' ||
-		//		c == ',' ||
-		//		c == '&');
-		//}
 
 		public static string GetFirstWord(string input)
 		{
@@ -250,35 +230,18 @@ namespace OnomasticsDataSystem.Common
 					 .Split((char[])null, StringSplitOptions.RemoveEmptyEntries)
 					 .Select(w => char.ToUpper(w[0]) + w.Substring(1)));
 		}
-		//public static string RemoveFromCity(string value)
-		//{
-		//	var result = value
-		//   .Split(' ', StringSplitOptions.RemoveEmptyEntries)
-		//   .Where(part =>
-		//	   !part.Contains('/') &&
-		//	   !part.Any(char.IsDigit))
-		//   .ToArray();
-		//	return string.Join(" ", result);
-		//}
 
-		//public static bool IsShorterThanThree(string? value)
-		//{
-		//	if (string.IsNullOrEmpty(value))
-		//		return false;
-
-		//	return value.Length < 3;
-		//}
 		private static bool IsLikelyLastName(string value)
 		{
 			var lower = value.ToLowerInvariant();
 
 			return
-				// ženské
+				// ženske
 				lower.EndsWith("ová") ||
 				lower.EndsWith("ova") ||
 				lower.EndsWith("očná") ||
 
-				// mužské (heuristika)
+				// men
 				lower.EndsWith("ák") ||
 				lower.EndsWith("ak") ||
 				lower.EndsWith("až") ||
@@ -305,23 +268,6 @@ namespace OnomasticsDataSystem.Common
 
 			return (f, l);
 		}
-		//public static string? NormalizeBirthCity(string? rawCity)
-		//{
-		//	if (string.IsNullOrWhiteSpace(rawCity))
-		//		return null;
-
-		//	var normalizedValue = Normalize(rawCity);
-
-		//	foreach (var city in SlovakCities)
-		//	{
-		//		if (normalizedValue!.Contains(Normalize(city)))
-		//		{
-		//			return city;
-		//		}
-		//	}
-
-		//	return rawCity;
-		//}
 		public static string? FormatName(string? value)
 		{
 			if (string.IsNullOrWhiteSpace(value))

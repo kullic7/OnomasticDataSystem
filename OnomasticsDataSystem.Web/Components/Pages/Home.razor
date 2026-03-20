@@ -7,7 +7,6 @@
 
 <div class="dashboard">
 
-    <!-- STAT CARDS -->
     <MudGrid Class="stat-grid">
 
         <MudItem xs="12" sm="6" md="3">
@@ -103,7 +102,8 @@
 
         </div>
 
-        <PersonTable Persons="persons"
+        <ItemTable   Mode="person"
+                     Persons="persons"
                      SelectedPersons="selectedPersons"
                      OnSelectionChanged="SelectionChanged" />
 
@@ -124,7 +124,7 @@
     List<Person> selectedPersons = new();
     protected override async Task OnInitializedAsync()
     {
-        _ = LoadData(); // fire & forget
+        _ = LoadData(); 
     }
     private async Task LoadData()
     {

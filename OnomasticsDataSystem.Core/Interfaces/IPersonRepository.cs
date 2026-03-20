@@ -25,20 +25,15 @@ namespace OnomasticsDataSystem.Core.Interfaces
 
 		//services
 		Task<PagedResult<ItemStats>> GetNameStatsAsync(int page, int pageSize, string? nameSearch, int? minCount, int? maxCount, string? startsWith);
-		//Task<int> GetNameStatsCountAsync(string? nameSearch, int? minCount, int? maxCount, string? startsWith);
+		
 		Task<PagedResult<ItemStats>> GetSurnameStatsAsync(int page, int pageSize, string? nameSearch, int? minCount, int? maxCount, string? startsWith);
-		//Task<int> GetSurnameStatsCountAsync(string? nameSearch, int? minCount, int? maxCount, string? startsWith);
+		
 		Task<PagedResult<ItemStats>> GetCityStatsAsync(int page, int pageSize, string? citySearch, int? minCount, int? maxCount);
 		Task<int> GetUniqueNamesCountAsync();
 		Task<int> GetUniqueSurnamesCountAsync();
 		Task<int> GetTotalPeopleCountAsync();
 		Task<int> GetUniqueCitiesCountAsync();
-		//Task<List<Person>> GetPagedAsync(int page, int pageSize);
-		//Task<int> GetFilteredPeopleCountAsync(string city,
-		//	string name,
-		//	string lastName,
-		//	int? yearFrom,
-		//	int? yearTo);
+		
 		Task<PagedResult<Person>> GetPersonsPageAsync(
 			int page,
 			int pageSize,
@@ -55,5 +50,13 @@ namespace OnomasticsDataSystem.Core.Interfaces
 		Task<TopListStats> GetNameCityStatsAsync(string name);
 		Task<TopListStats> GetSurnameCityStatsAsync(string name);
 		Task<TopListStats> GetCityNameStatsAsync(string city);
+		Task<PagedResult<ItemStats>> GetNameAnalysisAsync(
+			string? type,
+			int? syllables,
+			int? lengthFrom,
+			int? lengthTo,
+			string? startsWith,
+			int page,
+			int pageSize);
 	}
 }

@@ -40,14 +40,12 @@
 
     </FilterBar>
 
-    <!-- Table -->
-    <ItemTable Items="cities"
-               Page="page"
-               PageSize="pageSize"
-               Title="Mesto"
-               OnNameSelected="LoadNameStatsForCity" />
+    <ItemTable  Mode="stats"
+                Items="cities"
+                Page="page"
+                PageSize="pageSize"
+                OnNameSelected="LoadNameStatsForCity" />
 
-    <!-- Pager -->
     <Pager Page="page"
            TotalPages="totalPages"
            TotalCount="totalCount"
