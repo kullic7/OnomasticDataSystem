@@ -41,4 +41,75 @@
 	box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
+.source-filter {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
 
+.source-item {
+	background: #f3f4f6;
+	padding: 6px 10px;
+	border-radius: 8px;
+	cursor: pointer;
+}
+.dropdown-wrapper {
+	position: relative;
+	width: 100%;
+}
+
+.dropdown-header {
+	display: flex;
+	align-items: center;
+	height: calc(1.5em + 0.75rem + 2px); /* presne ako Bootstrap */
+	padding: 0.375rem 0.75rem;
+	font-size: 1rem;
+	font-weight: 400;
+	line-height: 1.5;
+	color: #495057;
+	background-color: #fff;
+	border: 1px solid #ced4da;
+	border-radius: 0.375rem;
+	cursor: pointer;
+}
+	.dropdown-header:focus,
+	.dropdown-header:active {
+		border-color: #86b7fe;
+		outline: 0;
+		box-shadow: 0 0 0 0.2rem rgba(13,110,253,.25);
+	}
+.dropdown-panel {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	border: 1px solid #ced4da; /* bootstrap style */
+	border-radius: 0.375rem;
+	background: white;
+	max-height: 200px;
+	overflow-y: auto;
+	margin-top: 2px;
+	z-index: 1000;
+}
+.dropdown-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 999; /* pod panelom */
+}
+.dropdown-item {
+	display: block;
+	padding: 6px 10px;
+	cursor: pointer;
+	font-size: 14px;
+}
+
+	.dropdown-item:hover {
+		background: #f8f9fa;
+	}
+
+	.dropdown-item input {
+		margin-right: 6px;
+	}

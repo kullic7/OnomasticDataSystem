@@ -10,12 +10,14 @@ namespace OnomasticsDataSystem.Infrastructure.Services
 	public class StatisticsService : IStatisticsService
 	{
 		private readonly IPersonRepository _personRepository;
+		private readonly ISourceRepository _sourceRepository;
 		private DashboardStatsForHome? _cache;
 		private DateTime _lastUpdate;
 
-		public StatisticsService(IPersonRepository personRepository)
+		public StatisticsService(IPersonRepository personRepository, ISourceRepository sourceRepository)
 		{
 			_personRepository = personRepository;
+			_sourceRepository = sourceRepository;
 		}
 
 		public async Task<PagedResult<Person>> GetPersonsPage(
@@ -25,12 +27,13 @@ namespace OnomasticsDataSystem.Infrastructure.Services
 			string? name,
 			string? lastName,
 			int? yearFrom,
-			int? yearTo)
+			int? yearTo,
+			IEnumerable<int>? selectedSourceIds)
 		{
 			return await _personRepository.GetPersonsPageAsync(
 				page, pageSize,
 				city, name, lastName,
-				yearFrom, yearTo);
+				yearFrom, yearTo, selectedSourceIds);
 		}
 
 
@@ -93,6 +96,9 @@ namespace OnomasticsDataSystem.Infrastructure.Services
 		{
 			return await _personRepository.GetNameAnalysisAsync(type, syllables, lengthFrom, lengthTo, startsWith, page, pageSize);
 
+		}
+		public async Task<List<Source>> GetAllSources() { 
+			return await _sourceRepository.GetAllAsync();
 		}
 
 	}

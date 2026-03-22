@@ -6,6 +6,7 @@ using OnomasticsDataSystem.Core.Models;
 using OnomasticsDataSystem.Infrastructure.Data;
 using System.Diagnostics.Metrics;
 using System.Net.NetworkInformation;
+using System.Text;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 namespace OnomasticsDataSystem.Infrastructure.Repositories
 {
@@ -56,7 +57,61 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 			using var _db = _factory.CreateDbContext();
 			await _db.People.AddAsync(person);
 		}
+		private string Escape(string? s)
+		{
+			if (s == null)
+				return "NULL";
 
+			return $"'{s.Replace("'", "''")}'";
+		}
+
+		public async Task InsertIgnoreConflictsAsync(List<Person> people)
+		{
+			if (people.Count == 0)
+				return;
+
+			using var db = _factory.CreateDbContext();
+
+			var values = new StringBuilder();
+
+			for (int i = 0; i < people.Count; i++)
+			{
+				var p = people[i];
+
+				values.Append($@"(
+                {Escape(p.FirstName)},
+                {Escape(p.LastName)},
+                {Escape(p.FirstNameNormalized)},
+                {Escape(p.LastNameNormalized)},
+                {(p.BirthYear.HasValue ? p.BirthYear.ToString() : "NULL")},
+                {Escape(p.BirthCity)},
+                {Escape(p.BirthCityNormalized)},
+                {p.SourceId},
+                NOW()
+            )");
+
+				if (i < people.Count - 1)
+					values.Append(",");
+			}
+
+			var sql = $@"
+            INSERT INTO person (
+                first_name,
+                last_name,
+                first_name_norm,
+                last_name_norm,
+                birth_year,
+                birth_city,
+                birth_city_norm,
+                source_id,
+                created_at
+            )
+            VALUES {values}
+            ON CONFLICT DO NOTHING;
+        ";
+
+			await db.Database.ExecuteSqlRawAsync(sql);
+		}
 		public async Task AddRangeAsync(IEnumerable<Person> people)
 		{
 			using var db = _factory.CreateDbContext();
@@ -94,7 +149,8 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 			string? name,
 			string? lastName,
 			int? yearFrom,
-			int? yearTo)
+			int? yearTo,
+			IEnumerable<int>? selectedSourceIds)
 		{
 			if (!string.IsNullOrWhiteSpace(city))
 			{
@@ -119,7 +175,10 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 
 			if (yearTo.HasValue)
 				query = query.Where(p => p.BirthYear <= yearTo.Value);
-
+			if (selectedSourceIds != null && selectedSourceIds.Any())
+			{
+				query = query.Where(p => selectedSourceIds.Contains(p.SourceId));
+			}
 			return query;
 		}
 
@@ -317,17 +376,21 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 			string? name,
 			string? lastName,
 			int? yearFrom,
-			int? yearTo)
+			int? yearTo,
+			IEnumerable<int>? selectedSourceIds)
 		{
 			using var _db = _factory.CreateDbContext();
 
 			var query = ApplyFilters(
-				_db.People.AsQueryable(),
+				_db.People
+					.Include(p => p.Source)   // 🔥 PRIDAJ TOTO
+					.AsNoTracking(),
 				city,
 				name,
 				lastName,
 				yearFrom,
-				yearTo);
+				yearTo,
+				selectedSourceIds);
 
 			var totalCount = await query.CountAsync();
 			//var totalCount = 0;
@@ -586,6 +649,7 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 
 			var baseQuery = db.People.AsNoTracking();
 
+			// 🔹 FILTERY V DB
 			if (!string.IsNullOrWhiteSpace(startsWith))
 			{
 				var norm = Helper.Normalize(startsWith);
@@ -595,7 +659,6 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 					: baseQuery.Where(p => p.LastNameNormalized!.StartsWith(norm));
 			}
 
-			
 			if (lengthFrom.HasValue)
 			{
 				baseQuery = isName
@@ -610,40 +673,44 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 					: baseQuery.Where(p => p.LastName!.Length <= lengthTo.Value);
 			}
 
-			
-			var query = baseQuery
+			// 🔥 GROUP + COUNT v DB
+			var groupedQuery = baseQuery
 				.GroupBy(p => isName ? p.FirstNameNormalized : p.LastNameNormalized)
-				.Select(g => new ItemStats
+				.Select(g => new
 				{
 					Name = isName
-						? g.GroupBy(x => x.FirstName)
-							.OrderByDescending(x => x.Count())
-							.Select(x => x.Key)
-							.First()
-						: g.GroupBy(x => x.LastName)
-							.OrderByDescending(x => x.Count())
-							.Select(x => x.Key)
-							.First(),
+						? g.Select(x => x.FirstName).First()
+						: g.Select(x => x.LastName).First(),
 
 					Count = g.Count()
-				});
+				})
+				.OrderByDescending(x => x.Count);
 
-			
-			var temp = await query.ToListAsync();
+			// 🔥 LIMIT (extrémne dôležité)
+			var limited = await groupedQuery.ToListAsync();
 
+			// 🔹 MAP + SYLLABLES
+			var mapped = limited.Select(x => new ItemStats
+			{
+				Name = x.Name!,
+				Count = x.Count
+			});
+
+			// 🔹 FILTER SYLLABLES (už rýchle vďaka cache)
 			if (syllables.HasValue)
 			{
-				temp = temp.Where(x =>
+				mapped = mapped.Where(x =>
 					syllables == 3
 						? x.Syllables >= 3
 						: x.Syllables == syllables
-				).ToList();
+				);
 			}
 
-			var totalCount = temp.Count;
+			var list = mapped.ToList();
 
-			var items = temp
-				.OrderByDescending(x => x.Count)
+			var totalCount = list.Count;
+
+			var items = list
 				.Skip((page - 1) * pageSize)
 				.Take(pageSize)
 				.ToList();

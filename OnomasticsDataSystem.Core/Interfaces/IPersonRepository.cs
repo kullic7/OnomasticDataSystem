@@ -10,6 +10,7 @@ namespace OnomasticsDataSystem.Core.Interfaces
 	{
 		Task AddAsync(Person person);
 		Task AddRangeAsync(IEnumerable<Person> people);
+		Task InsertIgnoreConflictsAsync(List<Person> people);
 		Task<IEnumerable<Person>> GetAllAsync();
 		Task<Person?> FindByNameAsync(string firstName, string lastName);
 		Task UpdateAsync(Person person);
@@ -41,7 +42,8 @@ namespace OnomasticsDataSystem.Core.Interfaces
 			string? name,
 			string? lastName,
 			int? yearFrom,
-			int? yearTo);
+			int? yearTo,
+			IEnumerable<int>? selectedSourceIds);
 
 
 		Task<List<TopItem>> GetTopNamesAsync(int limit = 5);

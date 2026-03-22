@@ -75,6 +75,35 @@
                        ShowExport="true">
 
                 <Filters>
+                    <div class="dropdown-wrapper">
+
+                        <div class="form-control dropdown-header"
+                             @onclick="ToggleDropdown">
+                            Zdroje (@(selectedSourceIds.Count == 0 ? "všetky" : selectedSourceIds.Count + " vybrané"))
+                        </div>
+
+                        @if (isDropdownOpen)
+                        {
+                            <!-- 🔥 overlay -->
+                            <div class="dropdown-overlay" @onclick="CloseDropdown"></div>
+
+                            <!-- 🔥 panel -->
+                            <div class="dropdown-panel">
+
+                                @foreach (var s in sources)
+                                {
+                                    <label class="dropdown-item">
+                                        <input type="checkbox"
+                                               checked="@selectedSourceIds.Contains(s.Id)"
+                                               @onchange="(e) => OnSourceCheckedChanged(s.Id, (bool)e.Value!)" />
+                                        @s.Name
+                                    </label>
+                                }
+
+                            </div>
+                        }
+
+                    </div>
                     <input class="form-control"
                            placeholder="Meno"
                            @bind="nameFilter" />
@@ -120,6 +149,10 @@
 </div>
 @code {
 
+    HashSet<int> selectedSourceIds = new();
+    bool isDropdownOpen = false;
+    List<Source> sources = new();
+
     DashboardStatsForHome stats = new();
     List<Person> selectedPersons = new();
     protected override async Task OnInitializedAsync()
@@ -130,7 +163,7 @@
     {
         isLoading = true;
         StateHasChanged();
-
+        sources = await StatisticsService.GetAllSources();
         stats = await StatisticsService.GetDashboardStatsForHome();
         await LoadPage();
 
@@ -163,7 +196,8 @@
             nameFilter,
             lastNameFilter,
             yearFrom,
-            yearTo);
+            yearTo,
+            selectedSourceIds.ToList());
 
         persons = result.Items;
         totalCount = result.TotalCount;
@@ -204,7 +238,7 @@
         lastNameFilter = "";
         yearFrom = null;
         yearTo = null;
-
+        selectedSourceIds = new HashSet<int>();
         page = 1;
         await LoadPage();
     }
@@ -238,5 +272,21 @@
     void SelectionChanged()
     {
         StateHasChanged();
+    }
+    void ToggleDropdown()
+    {
+        isDropdownOpen = !isDropdownOpen;
+    }
+
+    void OnSourceCheckedChanged(int id, bool isChecked)
+    {
+        if (isChecked)
+            selectedSourceIds.Add(id);
+        else
+            selectedSourceIds.Remove(id);
+    }
+    void CloseDropdown()
+    {
+        isDropdownOpen = false;
     }
 }

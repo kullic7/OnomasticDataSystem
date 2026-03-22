@@ -34,16 +34,15 @@ namespace OnomasticDataSystem.DataImport.Cleaning
 					if (columns.Length < 5)
 						continue;
 
-					var rawFirstName = columns[1].Trim();
-					var rawLastName = columns[2].Trim();
+					var rawFirstName = Helper.GetFirstWord(columns[1].Trim());
+					var rawLastName = Helper.GetFirstWord(columns[2].Trim());
 					if (Helper.IsInvalidValue(rawFirstName) ||
 							Helper.IsInvalidValue(rawLastName))
 					{
 						continue; // preskočí celý riadok
 					}
-					var firstName = Helper.GetFirstWord(rawFirstName);
-					var lastName = Helper.GetFirstWord(rawLastName);
-					(firstName, lastName) = Helper.FixSwappedNames(firstName, lastName);
+					
+					var (firstName, lastName) = Helper.FixSwappedNames(rawFirstName, rawLastName);
 
 					firstName = Helper.FormatName(firstName);
 					lastName = Helper.FormatName(lastName);
@@ -62,7 +61,7 @@ namespace OnomasticDataSystem.DataImport.Cleaning
 						firstNameNorm,
 						lastNameNorm,
 						birthYear,
-						cleanBirthPlace?.ToLowerInvariant()
+						normalizeBirthPlace
 					);
 
 					if (uniqueKeys.Contains(uniqueKey))

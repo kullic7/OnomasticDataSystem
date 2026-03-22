@@ -30,6 +30,9 @@ namespace OnomasticDataSystem.DataImport.Services
 			var dlzniciUnionPath = Path.Combine(basePath, _configuration["ImportPaths:DlzniciUnion"]);
 			var dlzniciVszpPath = Path.Combine(basePath, _configuration["ImportPaths:DlzniciVszp"]);
 			var regPravOsobPath = Path.Combine(basePath, _configuration["ImportPaths:RegPravOsob"]);
+			await ImportFromSourceAsync(
+				"Register pravnickych osôb",
+				new RegPravOsobCleaner().Clean(regPravOsobPath));
 
 			await ImportFromSourceAsync(
 				"Cintoriny",
@@ -51,9 +54,7 @@ namespace OnomasticDataSystem.DataImport.Services
 				"Dlznici VSZP poistovna",
 				new DlzniciVszpPoistovnaCleaner().Clean(dlzniciVszpPath));
 
-			await ImportFromSourceAsync(
-				"Register pravnickych osôb",
-				new RegPravOsobCleaner().Clean(regPravOsobPath));
+
 		}
 
 		private async Task ImportFromSourceAsync(string sourceName, List<Person> people)
@@ -62,27 +63,10 @@ namespace OnomasticDataSystem.DataImport.Services
 			var source = await _sourceRepository.GetByNameAsync(sourceName);
 
 			const int batchSize = 10000;
+
 			for (int i = 0; i < people.Count; i += batchSize)
 			{
-				var batch = people
-					.Skip(i)
-					.Take(batchSize)
-
-					// odstráni NULL alebo prázdne mená
-					.Where(p => !string.IsNullOrWhiteSpace(p.FirstName) &&
-								!string.IsNullOrWhiteSpace(p.LastName))
-
-					// odstráni duplicity v batchi
-					.GroupBy(p => new
-					{
-						p.FirstNameNormalized,
-						p.LastNameNormalized,
-						p.BirthYear,
-						p.BirthCity
-					})
-					.Select(g => g.First())
-
-					.ToList();
+				var batch = people.Skip(i).Take(batchSize).ToList();
 
 				foreach (var person in batch)
 				{
@@ -92,35 +76,14 @@ namespace OnomasticDataSystem.DataImport.Services
 
 				try
 				{
-					await _personRepository.AddRangeAsync(batch);
+					await _personRepository.InsertIgnoreConflictsAsync(batch);
 				}
 				catch (DbUpdateException ex)
 				{
-					Console.WriteLine($"Batch error: {ex.InnerException?.Message}");
+					Console.WriteLine(ex.InnerException?.Message);
 				}
-
 				_personRepository.ClearTracker();
 			}
-			//for (int i = 0; i < people.Count; i += batchSize)
-			//{
-			//	var batch = people.Skip(i).Take(batchSize).ToList();
-
-			//	foreach (var person in batch)
-			//	{
-			//		person.SourceId = source.Id;
-			//		person.CreatedAt = DateTime.UtcNow;
-			//	}
-
-			//	try
-			//	{
-			//		await _personRepository.AddRangeAsync(batch);
-			//	}
-			//	catch (DbUpdateException ex)
-			//	{
-			//		Console.WriteLine(ex.InnerException?.Message);
-			//	}
-			//	_personRepository.ClearTracker();
-			//}
 		}
 	}
 }

@@ -11,11 +11,11 @@ namespace OnomasticsDataSystem.Common
 		{
 			var sb = new StringBuilder();
 
-			sb.AppendLine("Id;FirstName;LastName;BirthCity;BirthYear");
+			sb.AppendLine("Id;FirstName;LastName;BirthCity;BirthYear;Source");
 
 			foreach (var p in data)
 			{
-				sb.AppendLine($"{p.Id};{p.FirstName};{p.LastName};{p.BirthCity};{p.BirthYear}");
+				sb.AppendLine($"{p.Id};{p.FirstName};{p.LastName};{p.BirthCity};{p.BirthYear};{p.Source.Name}");
 			}
 
 			return sb.ToString();

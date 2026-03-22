@@ -54,7 +54,7 @@ namespace OnomasticsDataSystem.Infrastructure.Data.Configurations
 				p.FirstNameNormalized,
 				p.LastNameNormalized,
 				p.BirthYear,
-				p.BirthCity
+				p.BirthCityNormalized
 			}).IsUnique();
 		}
 	}

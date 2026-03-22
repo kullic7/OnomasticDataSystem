@@ -83,7 +83,7 @@ namespace OnomasticsDataSystem.Infrastructure.Migrations
 
                     b.HasIndex("SourceId");
 
-                    b.HasIndex("FirstNameNormalized", "LastNameNormalized", "BirthYear", "BirthCity")
+                    b.HasIndex("FirstNameNormalized", "LastNameNormalized", "BirthYear", "BirthCityNormalized")
                         .IsUnique();
 
                     b.ToTable("person", (string)null);

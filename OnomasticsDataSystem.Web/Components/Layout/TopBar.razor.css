@@ -22,14 +22,20 @@
 
 /* menu */
 
-.nav-menu .nav-link {
-	color: rgba(255,255,255,0.9);
-	font-weight: 500;
-	margin-right: 10px;
+::deep .nav-link {
+	color: white !important;
+	font-weight: 600; /* hrubšie písmo */
+	font-size: 16px; /* väčšie */
+	letter-spacing: 0.5px; /* širšie medzery medzi písmenami */
+	transition: all 0.2s ease;
 }
 
-	.nav-menu .nav-link:hover {
-		color: white;
+	::deep .nav-link:hover {
+		color: #ddd !important;
+	}
+	::deep .nav-link.active {
+		color: #ddd !important;
+		font-weight: 700;
 	}
 
 /* search */

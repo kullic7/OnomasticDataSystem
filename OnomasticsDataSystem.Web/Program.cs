@@ -16,6 +16,8 @@ builder.Services.AddScoped<IPersonRepository, PersonRepository>();
 
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 
+builder.Services.AddScoped<ISourceRepository, SourceRepository>();
+
 builder.Services.AddMudServices();
 
 //pridane
@@ -25,6 +27,14 @@ builder.Services.AddRazorComponents()
 	.AddInteractiveServerComponents();
 
 var app = builder.Build();
+
+var supportedCultures = new[] { "sk-SK" };
+var localizationOptions = new RequestLocalizationOptions()
+	.SetDefaultCulture(supportedCultures[0])
+	.AddSupportedCultures(supportedCultures)
+	.AddSupportedUICultures(supportedCultures);
+
+app.UseRequestLocalization(localizationOptions);
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

@@ -16,7 +16,8 @@ namespace OnomasticsDataSystem.Core.Interfaces
 			string? name,
 			string? lastName,
 			int? yearFrom,
-			int? yearTo);
+			int? yearTo,
+			IEnumerable<int>? selectedSourceIds);
 
 		Task<PagedResult<ItemStats>> GetNameStats(int page, int pageSize, string? nameSearch, int? minCount, int? maxCount, string? startsWith);
 	
@@ -34,5 +35,6 @@ namespace OnomasticsDataSystem.Core.Interfaces
 			string? startsWith,
 			int page,
 			int pageSize);
+		Task<List<Source>> GetAllSources();
 	}
 }

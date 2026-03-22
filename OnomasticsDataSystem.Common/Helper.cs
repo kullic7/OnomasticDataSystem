@@ -121,7 +121,10 @@ namespace OnomasticsDataSystem.Common
 				return true;
 
 			var trimmed = value.Trim();
-
+			// ❗ odstráň všetky whitespace znaky
+			trimmed = new string(trimmed
+				.Where(c => !char.IsWhiteSpace(c))
+				.ToArray());
 			// príliš krátke (napr. "A", "Jo")
 			if (trimmed.Length < 3)
 				return true;

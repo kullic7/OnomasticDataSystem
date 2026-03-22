@@ -19,9 +19,12 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 			await _context.Sources.AddAsync(source);
 		}
 
-		public async Task<IEnumerable<Source>> GetAllAsync()
+		public async Task<List<Source>> GetAllAsync()
 		{
-			return await _context.Sources.ToListAsync();
+			return await _context.Sources
+				.AsNoTracking()
+				.OrderBy(s => s.Name)
+				.ToListAsync();
 		}
 
 		public async Task<Source?> GetByNameAsync(string name)

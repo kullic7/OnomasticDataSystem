@@ -10,7 +10,7 @@ namespace OnomasticsDataSystem.Core.Interfaces
 	public interface ISourceRepository
 	{
 		Task AddAsync(Source source);
-		Task<IEnumerable<Source>> GetAllAsync();
+		Task<List<Source>> GetAllAsync();
 		Task<Source?> GetByNameAsync(string name);
 		Task SaveChangesAsync();
 	}
