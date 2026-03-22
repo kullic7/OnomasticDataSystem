@@ -56,33 +56,54 @@
 .dropdown-wrapper {
 	position: relative;
 	width: 100%;
+	min-width: 0;
 }
 
 .dropdown-header {
-	display: flex;
+	display: inline-flex;
 	align-items: center;
-	height: calc(1.5em + 0.75rem + 2px); /* presne ako Bootstrap */
-	padding: 0.375rem 0.75rem;
+	justify-content: space-between;
+	gap: 8px;
+	height: 38px;
+	padding: 0 12px;
+	width: 100%;
 	font-size: 1rem;
-	font-weight: 400;
-	line-height: 1.5;
-	color: #495057;
-	background-color: #fff;
-	border: 1px solid #ced4da;
-	border-radius: 0.375rem;
+	font-weight: 500;
+	line-height: 1;
+	color: #111827;
+	background-color: #f3f4f6;
+	border: 1px solid #e5e7eb;
+	border-radius: 10px;
 	cursor: pointer;
+	white-space: nowrap;
+	transition: background-color .15s ease;
 }
+
+	.dropdown-header::after {
+		content: "";
+		width: 0;
+		height: 0;
+		border-left: 5px solid transparent;
+		border-right: 5px solid transparent;
+		border-top: 6px solid #111827;
+	}
+
+	.dropdown-header:hover {
+		background-color: #edeff3;
+	}
+
 	.dropdown-header:focus,
 	.dropdown-header:active {
-		border-color: #86b7fe;
+		background-color: #edeff3;
 		outline: 0;
-		box-shadow: 0 0 0 0.2rem rgba(13,110,253,.25);
+		box-shadow: 0 0 0 0.2rem rgba(17,24,39,.12);
 	}
 .dropdown-panel {
 	position: absolute;
 	top: 100%;
 	left: 0;
-	right: 0;
+	right: auto;
+	min-width: 240px;
 	border: 1px solid #ced4da; /* bootstrap style */
 	border-radius: 0.375rem;
 	background: white;

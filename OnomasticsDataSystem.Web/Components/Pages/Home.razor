@@ -77,17 +77,18 @@
                 <Filters>
                     <div class="dropdown-wrapper">
 
-                        <div class="form-control dropdown-header"
-                             @onclick="ToggleDropdown">
+                        <button type="button"
+                                class="dropdown-header"
+                                @onclick="ToggleDropdown">
                             Zdroje (@(selectedSourceIds.Count == 0 ? "všetky" : selectedSourceIds.Count + " vybrané"))
-                        </div>
+                        </button>
 
                         @if (isDropdownOpen)
                         {
-                            <!-- 🔥 overlay -->
+                            
                             <div class="dropdown-overlay" @onclick="CloseDropdown"></div>
 
-                            <!-- 🔥 panel -->
+                          
                             <div class="dropdown-panel">
 
                                 @foreach (var s in sources)
