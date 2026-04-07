@@ -12,7 +12,6 @@ namespace OnomasticsDataSystem.Core.Models
 		public int Length => Name?.Length ?? 0;
 
 		private int? _syllables;
-		// 🔥 CACHE (zdieľaná pre všetky objekty)
 		private static readonly Dictionary<string, int> _syllableCache = new();
 		private static readonly object _lock = new();
 		public int Syllables
@@ -41,7 +40,6 @@ namespace OnomasticsDataSystem.Core.Models
 			}
 		}
 
-		// 🔥 RÝCHLEJŠIE LOOKUPY
 		private static readonly HashSet<char> Vowels = new("aeiouyáéíóúäô");
 		private static readonly HashSet<char> Syllabic = new("rl");
 		private static int CountSyllables(string word)
@@ -72,9 +70,7 @@ namespace OnomasticsDataSystem.Core.Models
 						count++;
 				}
 			}
-
 			return count;
 		}
 	}
-
 }

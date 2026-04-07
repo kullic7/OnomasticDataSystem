@@ -1,9 +1,4 @@
-﻿
-
-
-/* toto je dôležité */
-
-.stat-card-content {
+﻿.stat-card-content {
 	display: flex;
 	align-items: center;
 	gap: 20px;
@@ -12,7 +7,6 @@
 }
 
 /* icon circle */
-
 .stat-icon-wrapper {
 	width: 60px;
 	height: 60px;
@@ -24,21 +18,15 @@
 	margin-left: 14px;
 }
 
-/* icon */
-
 .stat-icon {
 	font-size: 32px;
 	color: white;
 }
 
-/* title */
-
 .stat-title {
 	font-size: 16px;
 	color: rgba(255,255,255,0.85);
 }
-
-/* number */
 
 .stat-value {
 	font-size: 34px;

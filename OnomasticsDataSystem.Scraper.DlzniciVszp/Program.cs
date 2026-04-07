@@ -6,7 +6,7 @@ class Program
 {
 	public static async Task Main()
 	{
-		int maxPages = 4905; // nastav podľa potreby
+		int maxPages = 4905; 
 		string outputFile = "dlznici.csv";
 
 		// CSV header
@@ -20,16 +20,11 @@ class Program
 		});
 
 		var page = await browser.NewPageAsync();
-
 		for (int p = 1; p <= maxPages; p++)
 		{
-			string url =
-				$"https://www.vszp.sk/platitelia/platenie-poistneho/zoznam-dlznikov.html?docid=227&nazov=&typ=0&page={p}&proceed=true#vyhl";
-
-			Console.WriteLine($"Načítavam stránku {p}...");
-
+			string url =$"https://www.vszp.sk/platitelia/platenie-poistneho/zoznam-dlznikov.html?docid=227&nazov=&typ=0&page={p}&proceed=true#vyhl";
+			Console.WriteLine($"Načítavam stránku {p}");
 			await page.GotoAsync(url, new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
-
 			var rows = await page.QuerySelectorAllAsync("table.tabulkaStandard tbody tr");
 			if (rows.Count == 0)
 			{
@@ -51,15 +46,10 @@ class Program
 
 				string priezvisko = parts[0];
 				string meno = string.Join(" ", parts.Skip(1));
-
-				// zapíš do CSV
 				sb.AppendLine($"{meno};{priezvisko};{city}");
 			}
 		}
-
-		// uloženie CSV
 		await File.WriteAllTextAsync(outputFile, sb.ToString(), Encoding.UTF8);
-
 		Console.WriteLine($"Hotovo! Výsledky uložené v súbore: {outputFile}");
 	}
 }

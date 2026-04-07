@@ -2,11 +2,9 @@
           Style="@($"background:{BackgroundColor}; min-height:140px;")">
 
     <div class="stat-card-content">
-
         <div class="stat-icon-wrapper">
             <MudIcon Icon="@Icon" Style="font-size: 40px;" Class="stat-icon" />
         </div>
-
         <div class="stat-text">
 
             <div class="stat-title">
@@ -16,11 +14,8 @@
             <div class="stat-value">
                 @Value.ToString("N0")
             </div>
-
         </div>
-
     </div>
-
 </MudPaper>
 
 @code {

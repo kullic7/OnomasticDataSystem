@@ -17,7 +17,6 @@ var configuration = new ConfigurationBuilder()
 	.Build();
 
 var services = new ServiceCollection();
-//services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 services.AddDbContextFactory<ApplicationDbContext>(options =>
 	options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 services.AddScoped<ISourceRepository, SourceRepository>();

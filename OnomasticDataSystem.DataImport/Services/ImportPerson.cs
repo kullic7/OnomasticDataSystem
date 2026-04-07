@@ -22,7 +22,6 @@ namespace OnomasticDataSystem.DataImport.Services
 
 		public async Task ImportAllAsync()
 		{
-			//upravit
 			var basePath = AppContext.BaseDirectory;
 			var cintorinyPath = Path.Combine(basePath, _configuration["ImportPaths:Cintoriny"]);
 			var absolventiPath = Path.Combine(basePath, _configuration["ImportPaths:AbsolventiUniba"]);
@@ -53,8 +52,6 @@ namespace OnomasticDataSystem.DataImport.Services
 			await ImportFromSourceAsync(
 				"Dlznici VSZP poistovna",
 				new DlzniciVszpPoistovnaCleaner().Clean(dlzniciVszpPath));
-
-
 		}
 
 		private async Task ImportFromSourceAsync(string sourceName, List<Person> people)

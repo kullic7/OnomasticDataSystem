@@ -88,7 +88,6 @@ namespace OnomasticsDataSystem.Common
 			"Mŕtvonarodený",
 			"Poľnohospodárske",
 			"Reality"
-
 		};
 		
 		public static string? Normalize(string? value)
@@ -121,7 +120,7 @@ namespace OnomasticsDataSystem.Common
 				return true;
 
 			var trimmed = value.Trim();
-			// ❗ odstráň všetky whitespace znaky
+			// odstráň všetky whitespace znaky
 			trimmed = new string(trimmed
 				.Where(c => !char.IsWhiteSpace(c))
 				.ToArray());
@@ -129,7 +128,7 @@ namespace OnomasticsDataSystem.Common
 			if (trimmed.Length < 3)
 				return true;
 
-			// kontrola zoznamu nežiaducich hodnôt (napr. "nezistené", "unknown", atď.)
+			// kontrola zoznamu nežiaducich hodnôt 
 			if (UnwantedValues.Contains(trimmed))
 				return true;
 

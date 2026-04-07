@@ -10,7 +10,6 @@ namespace OnomasticsDataSystem.Core.Models
 		public int UniqueNames { get; set; }
 		public int UniqueSurnames { get; set; }
 		public int UniqueCities { get; set; }
-
 		public List<TopItem> TopNames { get; set; } = new();
 		public List<TopItem> TopSurnames { get; set; } = new();
 		public List<TopItem> TopCities { get; set; } = new();

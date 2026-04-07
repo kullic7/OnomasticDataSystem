@@ -55,7 +55,6 @@
            OnNext="NextPage"
            OnPrevious="PreviousPage" />
 
-
 </div>
 @code {
     [Parameter]
@@ -146,8 +145,6 @@
     
     async Task LoadCityStatsForName(string normalizedName)
     {
-        //Navigation.NavigateTo($"/mena?name={normalizedName}", replace: true);
-
         await LoadCityStats(normalizedName);
     }
     async Task LoadCityStats(string normalizedName)

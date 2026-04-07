@@ -61,8 +61,6 @@
 
     </MudGrid>
 
-
-
     <MudStack Spacing="0">
 
         <div id="filter-section">
@@ -185,11 +183,9 @@
     int? yearFrom = null;
     int? yearTo = null;
 
-
     async Task LoadPage()
     {
         isLoading = true;
-
         var result = await StatisticsService.GetPersonsPage(
             page,
             pageSize,

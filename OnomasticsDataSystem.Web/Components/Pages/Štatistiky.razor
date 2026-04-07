@@ -69,22 +69,18 @@ else
 }
 
 @code {
-
-    //filtre
     string? type = "name";
     int? syllables;
     int? lengthFrom;
     int? lengthTo;
     string? startsWith;
 
-    //paging
     int page = 1;
     int pageSize = 100;
     int totalPages;
     int totalCount;
 
     PagedResult<ItemStats>? results;
-    //TopListStats nameCityStats = new();
 
     bool isLoading = false;
 
@@ -131,7 +127,7 @@ else
 
     async Task ApplyFilters()
     {
-        page = 1; // reset stránkovania
+        page = 1;
         await LoadData();
     }
 
@@ -147,5 +143,4 @@ else
 
         await LoadData();
     }
-    
 }

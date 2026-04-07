@@ -41,9 +41,7 @@ namespace OnomasticDataSystem.DataImport.Cleaning
 					{
 						continue; // preskočí celý riadok
 					}
-					
-
-					
+										
 					var (firstName, lastName) = Helper.FixSwappedNames(rawFirstName, rawLastName);
 					
 					firstName = Helper.FormatName(firstName);
@@ -59,9 +57,6 @@ namespace OnomasticDataSystem.DataImport.Cleaning
 				
 					var normalizeBirthPlace = Helper.Normalize(cleanBirthPlace);
 					
-
-					
-
 					var uniqueKey = (
 						firstNameNorm,
 						lastNameNorm,

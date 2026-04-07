@@ -88,9 +88,7 @@ namespace OnomasticDataSystem.DataImport.Cleaning
 				}
 			}
 			
-
 			return people;
 		}
-
 	}
 }

@@ -9,7 +9,6 @@ namespace OnomasticsDataSystem.Infrastructure.Data
 			: base(options)
 		{
 		}
-
 		// tabulky
 		public DbSet<Person> People { get; set; } = null!;
 		public DbSet<Source> Sources { get; set; } = null!;

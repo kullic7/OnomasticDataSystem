@@ -55,7 +55,6 @@ namespace OnomasticDataSystem.DataImport.Cleaning
 
 					var normalizeBirthPlace = Helper.Normalize(cleanBirthPlace);
 
-
 					var uniqueKey = (
 						firstNameNorm,
 						lastNameNorm,
@@ -87,7 +86,6 @@ namespace OnomasticDataSystem.DataImport.Cleaning
 					people.Add(person);
 				}
 			}
-
 			return people;
 		}
 	}

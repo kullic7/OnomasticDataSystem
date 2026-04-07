@@ -104,7 +104,7 @@
 	left: 0;
 	right: auto;
 	min-width: 240px;
-	border: 1px solid #ced4da; /* bootstrap style */
+	border: 1px solid #ced4da; 
 	border-radius: 0.375rem;
 	background: white;
 	max-height: 200px;
@@ -118,7 +118,7 @@
 	left: 0;
 	right: 0;
 	bottom: 0;
-	z-index: 999; /* pod panelom */
+	z-index: 999; 
 }
 .dropdown-item {
 	display: block;

@@ -32,29 +32,14 @@ namespace OnomasticDataSystem.DataImport.Cleaning
 					if (columns.Length < 3)
 						continue;
 
-					//var col1 = columns[0].Trim();
-					//var col2 = columns[1].Trim();
-
 					var rawFirstName = Helper.GetFirstWord(columns[0].Trim());
 					var rawLastName = Helper.GetFirstWord(columns[1].Trim());
 
-					// Ak sú obe hodnoty celé uppercase prvé je priezvisko
-					//if (Helper.ContainsFullyUppercaseWord(col1) && Helper.ContainsFullyUppercaseWord(col2))
-					//{
-					//	rawLastName = col1;
-					//	rawFirstName = col2;
-					//}
-					//else
-					//{
-					//	rawFirstName = col1;
-					//	rawLastName = col2;
-					//}
 					if (Helper.IsInvalidValue(rawFirstName) ||
 							Helper.IsInvalidValue(rawLastName))
 					{
 						continue; // preskočí celý riadok
 					}
-
 				
 					var (firstName, lastName) = Helper.FixSwappedNames(rawFirstName, rawLastName);
 					
@@ -68,7 +53,6 @@ namespace OnomasticDataSystem.DataImport.Cleaning
 					var cleanBirthPlace = Helper.CleanAndNormalizeCity(columns[2].Trim());
 					
 					var normalizeBirthPlace = Helper.Normalize(cleanBirthPlace);
-
 
 					var uniqueKey = (
 						firstNameNorm,

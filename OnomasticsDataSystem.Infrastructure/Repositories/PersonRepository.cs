@@ -61,7 +61,6 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 		{
 			if (s == null)
 				return "NULL";
-
 			return $"'{s.Replace("'", "''")}'";
 		}
 
@@ -69,53 +68,27 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 		{
 			if (people.Count == 0)
 				return;
-
 			using var db = _factory.CreateDbContext();
-
 			var values = new StringBuilder();
 
 			for (int i = 0; i < people.Count; i++)
 			{
 				var p = people[i];
-
-				values.Append($@"(
-                {Escape(p.FirstName)},
-                {Escape(p.LastName)},
-                {Escape(p.FirstNameNormalized)},
-                {Escape(p.LastNameNormalized)},
-                {(p.BirthYear.HasValue ? p.BirthYear.ToString() : "NULL")},
-                {Escape(p.BirthCity)},
-                {Escape(p.BirthCityNormalized)},
-                {p.SourceId},
-                NOW()
-            )");
-
+				values.Append($@"({Escape(p.FirstName)}, {Escape(p.LastName)},
+					{Escape(p.FirstNameNormalized)}, {Escape(p.LastNameNormalized)},
+					{(p.BirthYear.HasValue ? p.BirthYear.ToString() : "NULL")},
+					{Escape(p.BirthCity)}, {Escape(p.BirthCityNormalized)}, {p.SourceId}, NOW())");
 				if (i < people.Count - 1)
 					values.Append(",");
 			}
-
-			var sql = $@"
-            INSERT INTO person (
-                first_name,
-                last_name,
-                first_name_norm,
-                last_name_norm,
-                birth_year,
-                birth_city,
-                birth_city_norm,
-                source_id,
-                created_at
-            )
-            VALUES {values}
-            ON CONFLICT DO NOTHING;
-        ";
-
+			var sql = $@"INSERT INTO person (first_name, last_name, first_name_norm, last_name_norm,
+						birth_year, birth_city, birth_city_norm, source_id, created_at)
+						VALUES {values} ON CONFLICT DO NOTHING;";
 			await db.Database.ExecuteSqlRawAsync(sql);
 		}
 		public async Task AddRangeAsync(IEnumerable<Person> people)
 		{
 			using var db = _factory.CreateDbContext();
-
 			await db.People.AddRangeAsync(people);
 			await db.SaveChangesAsync();
 		}
@@ -139,7 +112,6 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 				p.BirthYear == birthYear &&
 				p.BirthCity == birthCity);
 		}
-
 
 		//services
 		//helper
@@ -185,11 +157,9 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 		public async Task<PagedResult<ItemStats>> GetNameStatsAsync(int page, int pageSize, string? nameSearch, int? minCount, int? maxCount, string? startsWith)
 		{
 			using var db = _factory.CreateDbContext();
-
 			var baseQuery = db.People
 				.AsNoTracking();
 
-			
 			if (!string.IsNullOrWhiteSpace(nameSearch))
 			{
 				var search = Helper.Normalize(nameSearch);
@@ -206,9 +176,7 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 				.GroupBy(p => p.FirstNameNormalized)
 				.Select(g => new ItemStats
 				{
-					Name = g.Select(x => x.FirstName)
-		.First(),
-
+					Name = g.Select(x => x.FirstName).First(),
 					Count = g.Count()
 				});
 
@@ -230,18 +198,13 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 			{
 				Items = items,
 				TotalCount = totalCount
-			};
-			
+			};			
 		}
-
 		
 		public async Task<PagedResult<ItemStats>> GetSurnameStatsAsync(int page, int pageSize, string? nameSearch, int? minCount, int? maxCount, string? startsWith)
 		{
 			using var db = _factory.CreateDbContext();
-
-			var baseQuery = db.People
-				.AsNoTracking();
-
+			var baseQuery = db.People.AsNoTracking();
 			
 			if (!string.IsNullOrWhiteSpace(nameSearch))
 			{
@@ -264,7 +227,6 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 						.OrderByDescending(x => x.Count())
 						.Select(x => x.Key)
 						.First(),
-
 					Count = g.Count()
 				});
 
@@ -297,7 +259,6 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 			int? maxCount)
 		{
 			using var db = _factory.CreateDbContext();
-
 			var baseQuery = db.People
 				.AsNoTracking()
 				.Where(p => p.BirthCityNormalized != null);
@@ -383,7 +344,7 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 
 			var query = ApplyFilters(
 				_db.People
-					.Include(p => p.Source)   // 🔥 PRIDAJ TOTO
+					.Include(p => p.Source) 
 					.AsNoTracking(),
 				city,
 				name,
@@ -410,7 +371,6 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 		public async Task<List<TopItem>> GetTopNamesAsync(int limit = 5)
 		{
 			using var db = _factory.CreateDbContext();
-
 			var data = await db.People
 				.Where(p => p.FirstNameNormalized != null)
 				.GroupBy(p => p.FirstNameNormalized)
@@ -452,7 +412,6 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 						.OrderByDescending(x => x.Count())
 						.Select(x => x.Key)
 						.First(),
-
 					Count = g.Count()
 				})
 				.OrderByDescending(x => x.Count)
@@ -472,7 +431,6 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 		public async Task<List<TopItem>> GetTopCitiesAsync(int limit = 5)
 		{
 			using var db = _factory.CreateDbContext();
-
 			var data = await db.People
 				.Where(p => p.BirthCityNormalized != null && p.BirthCityNormalized != "")
 				.GroupBy(p => p.BirthCityNormalized)
@@ -591,7 +549,6 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 			var query = db.People
 				.AsNoTracking()
 				.Where(p => p.BirthCityNormalized == normalized);
-
 			
 			var displayName = await query
 				.Select(p => p.BirthCity)
@@ -649,7 +606,6 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 
 			var baseQuery = db.People.AsNoTracking();
 
-			// 🔹 FILTERY V DB
 			if (!string.IsNullOrWhiteSpace(startsWith))
 			{
 				var norm = Helper.Normalize(startsWith);
@@ -673,7 +629,6 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 					: baseQuery.Where(p => p.LastName!.Length <= lengthTo.Value);
 			}
 
-			// 🔥 GROUP + COUNT v DB
 			var groupedQuery = baseQuery
 				.GroupBy(p => isName ? p.FirstNameNormalized : p.LastNameNormalized)
 				.Select(g => new
@@ -686,17 +641,14 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 				})
 				.OrderByDescending(x => x.Count);
 
-			// 🔥 LIMIT (extrémne dôležité)
 			var limited = await groupedQuery.ToListAsync();
 
-			// 🔹 MAP + SYLLABLES
 			var mapped = limited.Select(x => new ItemStats
 			{
 				Name = x.Name!,
 				Count = x.Count
 			});
 
-			// 🔹 FILTER SYLLABLES (už rýchle vďaka cache)
 			if (syllables.HasValue)
 			{
 				mapped = mapped.Where(x =>
@@ -707,9 +659,7 @@ namespace OnomasticsDataSystem.Infrastructure.Repositories
 			}
 
 			var list = mapped.ToList();
-
 			var totalCount = list.Count;
-
 			var items = list
 				.Skip((page - 1) * pageSize)
 				.Take(pageSize)

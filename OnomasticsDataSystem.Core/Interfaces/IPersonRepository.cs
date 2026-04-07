@@ -18,11 +18,7 @@ namespace OnomasticsDataSystem.Core.Interfaces
 		void ClearTracker();
 		Task<Person?> GetByIdAsync(long id);
 		//Task SaveChangesAsync();
-
 		Task<bool> ExistsAsync(string firstName, string lastName, int? birthYear, string birthCity);
-
-
-
 
 		//services
 		Task<PagedResult<ItemStats>> GetNameStatsAsync(int page, int pageSize, string? nameSearch, int? minCount, int? maxCount, string? startsWith);
@@ -44,7 +40,6 @@ namespace OnomasticsDataSystem.Core.Interfaces
 			int? yearFrom,
 			int? yearTo,
 			IEnumerable<int>? selectedSourceIds);
-
 
 		Task<List<TopItem>> GetTopNamesAsync(int limit = 5);
 		Task<List<TopItem>> GetTopSurnamesAsync(int limit = 5);

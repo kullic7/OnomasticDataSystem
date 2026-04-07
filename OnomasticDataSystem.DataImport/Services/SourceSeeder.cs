@@ -15,11 +15,11 @@ namespace OnomasticDataSystem.DataImport.Services
 		public async Task SeedAsync()
 		{
 			await SeedSourceAsync("Absolventi Uniba", "https://absolventi.uniba.sk/sk");
-			await SeedSourceAsync("Cintoriny", "https://www.cintoriny.sk/src/index.php");
-			await SeedSourceAsync("Dlznici socialna poistovna", "https://www.socpoist.sk/nastroje-sluzby/zoznam-dlznikov");
-			await SeedSourceAsync("Dlznici union poistovna", "https://portal.unionzp.sk/pub/dlznici");
-			await SeedSourceAsync("Dlznici VSZP poistovna", "https://www.vszp.sk/platitelia/platenie-poistneho/zoznam-dlznikov.html");
-			await SeedSourceAsync("Register pravnickych osôb", "https://frkqbrydxwdp.compat.objectstorage.eu-frankfurt-1.oraclecloud.com/susr-rpo/");
+			await SeedSourceAsync("Cintoríny", "https://www.cintoriny.sk/src/index.php");
+			await SeedSourceAsync("Dlžníci Sociálna poisťovna", "https://www.socpoist.sk/nastroje-sluzby/zoznam-dlznikov");
+			await SeedSourceAsync("Dlžníci Union poisťovna", "https://portal.unionzp.sk/pub/dlznici");
+			await SeedSourceAsync("Dlžníci VŠZP poisťovna", "https://www.vszp.sk/platitelia/platenie-poistneho/zoznam-dlznikov.html");
+			await SeedSourceAsync("Register právnických osôb", "https://frkqbrydxwdp.compat.objectstorage.eu-frankfurt-1.oraclecloud.com/susr-rpo/");
 		}
 
 		private async Task SeedSourceAsync(string name, string url)
