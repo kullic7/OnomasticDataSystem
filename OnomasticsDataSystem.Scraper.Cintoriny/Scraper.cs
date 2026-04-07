@@ -341,7 +341,7 @@ namespace OnomasticsDataSystem.Scraper.Cintoriny
 
 					if (attempts >= 3)
 					{
-						Console.WriteLine($"{cid} → ❌ Po 3 pokusoch sa vzdávam.");
+						Console.WriteLine($"{cid} → Po 3 pokusoch koniec.");
 						throw;
 					}
 
